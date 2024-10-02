@@ -5,19 +5,15 @@ const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 const selectedKey = ref("C");
 
 const strings = ["E", "B", "G", "D", "A", "E"];
-const frets = Array.from({ length: 12 }, (_, i) => i);
+const frets = Array.from({ length: 23 }, (_, i) => i); // 0 to 22 frets
+
+const intervals = ["1", "2", "3", "4", "5", "6", "7"];
 
 const notesInKey = computed(() => {
   const keyIndex = keys.indexOf(selectedKey.value);
-  return [
-    keys[keyIndex],
-    keys[(keyIndex + 2) % 12],
-    keys[(keyIndex + 4) % 12],
-    keys[(keyIndex + 5) % 12],
-    keys[(keyIndex + 7) % 12],
-    keys[(keyIndex + 9) % 12],
-    keys[(keyIndex + 11) % 12],
-  ];
+  return intervals.map(
+    (_, i) => keys[(keyIndex + [0, 2, 4, 5, 7, 9, 11][i]) % 12]
+  );
 });
 
 const getNoteAtFret = (string: string, fret: number) => {
@@ -26,6 +22,20 @@ const getNoteAtFret = (string: string, fret: number) => {
 };
 
 const isNoteInKey = (note: string) => notesInKey.value.includes(note);
+
+const getIntervalForNote = (note: string) => {
+  const index = notesInKey.value.indexOf(note);
+  return index > 0 ? intervals[index] : "";
+};
+
+const getNoteClass = (note: string, fret: number) => {
+  let classes = "border-r border-gray-300 ";
+  if (fret === 0) classes += "border-r-2 border-r-gray-600 ";
+  if (note === selectedKey.value)
+    classes += "bg-green-500 text-white font-bold";
+  else if (isNoteInKey(note)) classes += "bg-yellow-300 text-black font-bold";
+  return classes;
+};
 </script>
 
 <template>
@@ -40,19 +50,36 @@ const isNoteInKey = (note: string) => notesInKey.value.includes(note);
         <option v-for="key in keys" :key="key" :value="key">{{ key }}</option>
       </select>
     </div>
-    <div class="border border-gray-300">
-      <div v-for="string in strings" :key="string" class="flex">
-        <div
-          v-for="fret in frets"
-          :key="fret"
-          class="w-10 h-10 border border-gray-300 flex items-center justify-center text-sm"
-          :class="{
-            'bg-green-500 text-white font-bold': isNoteInKey(
-              getNoteAtFret(string, fret)
-            ),
-          }"
-        >
-          {{ getNoteAtFret(string, fret) }}
+    <div class="border border-gray-300 overflow-x-auto">
+      <div class="inline-block min-w-full">
+        <div v-for="string in strings" :key="string" class="flex">
+          <div
+            v-for="fret in frets"
+            :key="fret"
+            class="w-12 h-12 flex flex-col items-center justify-center text-sm relative"
+            :class="getNoteClass(getNoteAtFret(string, fret), fret)"
+          >
+            <span>{{ getNoteAtFret(string, fret) }}</span>
+            <span
+              v-if="
+                isNoteInKey(getNoteAtFret(string, fret)) &&
+                getNoteAtFret(string, fret) !== selectedKey
+              "
+              class="text-xs absolute bottom-0.5"
+            >
+              {{ getIntervalForNote(getNoteAtFret(string, fret)) }}
+            </span>
+          </div>
+        </div>
+        <div class="flex">
+          <div
+            v-for="fret in frets"
+            :key="fret"
+            class="w-12 h-6 flex items-center justify-center text-xs border-r border-gray-300"
+            :class="{ 'border-r-2 border-r-gray-600': fret === 0 }"
+          >
+            {{ fret }}
+          </div>
         </div>
       </div>
     </div>
