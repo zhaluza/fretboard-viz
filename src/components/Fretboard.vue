@@ -30,7 +30,7 @@ const getIntervalForNote = (note: string) => {
 
 const getNoteClass = (note: string, fret: number) => {
   let classes = "border-r border-gray-300 ";
-  if (fret === 0) classes += "border-r-2 border-r-gray-600 ";
+  if (fret === 0) classes += "border-r-4 border-r-gray-600 mr-2 ";
   if (note === selectedKey.value)
     classes += "bg-green-500 text-white font-bold";
   else if (isNoteInKey(note)) classes += "bg-yellow-300 text-black font-bold";
@@ -52,6 +52,18 @@ const getNoteClass = (note: string, fret: number) => {
     </div>
     <div class="border border-gray-300 overflow-x-auto">
       <div class="inline-block min-w-full">
+        <!-- Fret numbers at the top -->
+        <div class="flex">
+          <div
+            v-for="fret in frets"
+            :key="fret"
+            class="w-12 h-6 flex items-center justify-center text-xs border-r border-gray-300"
+            :class="{ 'border-r-4 border-r-gray-600 mr-2': fret === 0 }"
+          >
+            {{ fret }}
+          </div>
+        </div>
+        <!-- Fretboard -->
         <div v-for="string in strings" :key="string" class="flex">
           <div
             v-for="fret in frets"
@@ -71,12 +83,13 @@ const getNoteClass = (note: string, fret: number) => {
             </span>
           </div>
         </div>
+        <!-- Fret numbers at the bottom -->
         <div class="flex">
           <div
             v-for="fret in frets"
             :key="fret"
             class="w-12 h-6 flex items-center justify-center text-xs border-r border-gray-300"
-            :class="{ 'border-r-2 border-r-gray-600': fret === 0 }"
+            :class="{ 'border-r-4 border-r-gray-600 mr-2': fret === 0 }"
           >
             {{ fret }}
           </div>
