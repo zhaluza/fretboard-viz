@@ -4,6 +4,7 @@ export default {
   theme: {
     extend: {},
   },
+  darkMode: "class",
   plugins: [],
   purge: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
 };

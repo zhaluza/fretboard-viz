@@ -64,12 +64,14 @@ const getIntervalForNote = (note: string) => {
 };
 
 const getNoteClass = (note: string, fret: number) => {
-  let classes = "border-r border-gray-300 ";
-  if (fret === 0) classes += "border-r-4 border-r-gray-600 mr-2 ";
+  let classes = "border-r border-gray-300 dark:border-gray-600 ";
+  if (fret === 0)
+    classes += "border-r-4 border-r-gray-600 dark:border-r-gray-400 mr-2 ";
   if (note === selectedKey.value)
     classes += "bg-green-500 text-white font-bold";
   else if (isNoteInKey(note) && getIntervalForNote(note))
-    classes += "bg-yellow-300 text-black font-bold";
+    classes +=
+      "bg-yellow-300 text-black font-bold dark:bg-blue-600 dark:text-white";
   return classes;
 };
 
@@ -101,7 +103,7 @@ const fretboardClass = computed(() => {
         <select
           id="key-select"
           v-model="selectedKey"
-          class="px-2 py-1 border rounded"
+          class="px-2 py-1 border rounded text-black dark:text-white bg-white dark:bg-gray-700"
         >
           <option v-for="key in keys" :key="key" :value="key">{{ key }}</option>
         </select>
@@ -111,7 +113,7 @@ const fretboardClass = computed(() => {
         <select
           id="key-type-select"
           v-model="selectedKeyType"
-          class="px-2 py-1 border rounded"
+          class="px-2 py-1 border rounded text-black dark:text-white bg-white dark:bg-gray-700"
         >
           <option value="major">Major</option>
           <option value="minor">Minor</option>
@@ -122,7 +124,7 @@ const fretboardClass = computed(() => {
         <select
           id="intervals-select"
           v-model="selectedIntervals"
-          class="px-2 py-1 border rounded"
+          class="px-2 py-1 border rounded text-black dark:text-white bg-white dark:bg-gray-700"
         >
           <option value="all">All</option>
           <option value="pentatonic">Pentatonic</option>
@@ -130,23 +132,31 @@ const fretboardClass = computed(() => {
         </select>
       </div>
     </div>
-    <p v-if="isSmallScreen" class="text-sm text-gray-600 mb-2">
+    <p
+      v-if="isSmallScreen"
+      class="text-sm text-gray-600 dark:text-gray-400 mb-2"
+    >
       Scroll horizontally to see all frets
     </p>
-    <div class="border border-gray-300 w-full" :class="fretboardClass">
+    <div
+      class="border border-gray-300 dark:border-gray-600 w-full"
+      :class="fretboardClass"
+    >
       <div :class="{ 'inline-block': isSmallScreen, 'w-full': !isSmallScreen }">
         <!-- Fret numbers at the top -->
-        <div class="flex sticky top-0 bg-white z-10">
+        <div class="flex sticky top-0 bg-white dark:bg-gray-900 z-10">
           <div
-            class="w-12 h-6 flex items-center justify-center text-xs border-r border-gray-300 sticky left-0 bg-white z-20"
+            class="w-12 h-6 flex items-center justify-center text-xs border-r border-gray-300 dark:border-gray-600 sticky left-0 bg-white dark:bg-gray-900 z-20"
           >
             Fret
           </div>
           <div
             v-for="fret in frets"
             :key="fret"
-            class="w-12 h-6 flex items-center justify-center text-xs border-r border-gray-300"
-            :class="{ 'border-r-4 border-r-gray-600': fret === 0 }"
+            class="w-12 h-6 flex items-center justify-center text-xs border-r border-gray-300 dark:border-gray-600"
+            :class="{
+              'border-r-4 border-r-gray-600 dark:border-r-gray-400': fret === 0,
+            }"
           >
             {{ fret }}
           </div>
@@ -154,7 +164,7 @@ const fretboardClass = computed(() => {
         <!-- Fretboard -->
         <div v-for="string in strings" :key="string" class="flex">
           <div
-            class="w-12 h-12 flex items-center justify-center text-sm border-r border-gray-300 sticky left-0 bg-white z-10"
+            class="w-12 h-12 flex items-center justify-center text-sm border-r border-gray-300 dark:border-gray-600 sticky left-0 bg-white dark:bg-gray-900 z-10"
           >
             {{ string }}
           </div>
@@ -177,17 +187,19 @@ const fretboardClass = computed(() => {
           </div>
         </div>
         <!-- Fret numbers at the bottom -->
-        <div class="flex sticky bottom-0 bg-white z-10">
+        <div class="flex sticky bottom-0 bg-white dark:bg-gray-900 z-10">
           <div
-            class="w-12 h-6 flex items-center justify-center text-xs border-r border-gray-300 sticky left-0 bg-white z-20"
+            class="w-12 h-6 flex items-center justify-center text-xs border-r border-gray-300 dark:border-gray-600 sticky left-0 bg-white dark:bg-gray-900 z-20"
           >
             Fret
           </div>
           <div
             v-for="fret in frets"
             :key="fret"
-            class="w-12 h-6 flex items-center justify-center text-xs border-r border-gray-300"
-            :class="{ 'border-r-4 border-r-gray-600': fret === 0 }"
+            class="w-12 h-6 flex items-center justify-center text-xs border-r border-gray-300 dark:border-gray-600"
+            :class="{
+              'border-r-4 border-r-gray-600 dark:border-r-gray-400': fret === 0,
+            }"
           >
             {{ fret }}
           </div>
