@@ -91,7 +91,7 @@ const fretboardClass = computed(() => {
           </div>
         </div>
         <!-- Fretboard -->
-        <div v-for="(string, index) in strings" :key="string" class="flex">
+        <div v-for="string in strings" :key="string" class="flex">
           <div
             class="w-12 h-12 flex items-center justify-center text-sm border-r border-gray-300 sticky left-0 bg-white z-10"
           >
