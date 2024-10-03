@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 
 const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 const selectedKey = ref("C");
@@ -36,6 +36,25 @@ const getNoteClass = (note: string, fret: number) => {
   else if (isNoteInKey(note)) classes += "bg-yellow-300 text-black font-bold";
   return classes;
 };
+
+const isSmallScreen = ref(false);
+
+const updateScreenSize = () => {
+  isSmallScreen.value = window.innerWidth < 1024; // Adjust this value as needed
+};
+
+onMounted(() => {
+  updateScreenSize();
+  window.addEventListener("resize", updateScreenSize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", updateScreenSize);
+});
+
+const fretboardClass = computed(() => {
+  return isSmallScreen.value ? "overflow-x-auto" : "overflow-x-visible";
+});
 </script>
 
 <template>
@@ -50,21 +69,34 @@ const getNoteClass = (note: string, fret: number) => {
         <option v-for="key in keys" :key="key" :value="key">{{ key }}</option>
       </select>
     </div>
-    <div class="border border-gray-300 overflow-x-auto">
-      <div class="inline-block min-w-full">
+    <p v-if="isSmallScreen" class="text-sm text-gray-600 mb-2">
+      Scroll horizontally to see all frets
+    </p>
+    <div class="border border-gray-300 w-full" :class="fretboardClass">
+      <div :class="{ 'inline-block': isSmallScreen, 'w-full': !isSmallScreen }">
         <!-- Fret numbers at the top -->
-        <div class="flex">
+        <div class="flex sticky top-0 bg-white z-10">
+          <div
+            class="w-12 h-6 flex items-center justify-center text-xs border-r border-gray-300 sticky left-0 bg-white z-20"
+          >
+            Fret
+          </div>
           <div
             v-for="fret in frets"
             :key="fret"
             class="w-12 h-6 flex items-center justify-center text-xs border-r border-gray-300"
-            :class="{ 'border-r-4 border-r-gray-600 mr-2': fret === 0 }"
+            :class="{ 'border-r-4 border-r-gray-600': fret === 0 }"
           >
             {{ fret }}
           </div>
         </div>
         <!-- Fretboard -->
-        <div v-for="string in strings" :key="string" class="flex">
+        <div v-for="(string, index) in strings" :key="string" class="flex">
+          <div
+            class="w-12 h-12 flex items-center justify-center text-sm border-r border-gray-300 sticky left-0 bg-white z-10"
+          >
+            {{ string }}
+          </div>
           <div
             v-for="fret in frets"
             :key="fret"
@@ -84,12 +116,17 @@ const getNoteClass = (note: string, fret: number) => {
           </div>
         </div>
         <!-- Fret numbers at the bottom -->
-        <div class="flex">
+        <div class="flex sticky bottom-0 bg-white z-10">
+          <div
+            class="w-12 h-6 flex items-center justify-center text-xs border-r border-gray-300 sticky left-0 bg-white z-20"
+          >
+            Fret
+          </div>
           <div
             v-for="fret in frets"
             :key="fret"
             class="w-12 h-6 flex items-center justify-center text-xs border-r border-gray-300"
-            :class="{ 'border-r-4 border-r-gray-600 mr-2': fret === 0 }"
+            :class="{ 'border-r-4 border-r-gray-600': fret === 0 }"
           >
             {{ fret }}
           </div>
@@ -98,3 +135,16 @@ const getNoteClass = (note: string, fret: number) => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 1024px) {
+  .w-full {
+    width: max-content;
+    margin: 0 auto;
+  }
+}
+</style>
