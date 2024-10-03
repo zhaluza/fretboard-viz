@@ -3,17 +3,48 @@ import { ref, computed, onMounted, onUnmounted } from "vue";
 
 const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 const selectedKey = ref("C");
+const selectedKeyType = ref("major");
+const selectedIntervals = ref("all");
 
 const strings = ["E", "B", "G", "D", "A", "E"];
 const frets = Array.from({ length: 23 }, (_, i) => i); // 0 to 22 frets
 
-const intervals = ["1", "2", "3", "4", "5", "6", "7"];
-
 const notesInKey = computed(() => {
   const keyIndex = keys.indexOf(selectedKey.value);
-  return intervals.map(
-    (_, i) => keys[(keyIndex + [0, 2, 4, 5, 7, 9, 11][i]) % 12]
-  );
+  const intervalPattern =
+    selectedKeyType.value === "major"
+      ? [0, 2, 4, 5, 7, 9, 11]
+      : [0, 2, 3, 5, 7, 8, 10]; // Minor scale pattern
+  return intervalPattern.map((interval) => keys[(keyIndex + interval) % 12]);
+});
+
+const scaleIntervals = computed(() => {
+  return selectedKeyType.value === "major"
+    ? ["1", "2", "3", "4", "5", "6", "7"]
+    : ["1", "2", "b3", "4", "5", "b6", "b7"];
+});
+
+const activeIntervals = computed(() => {
+  if (selectedKeyType.value === "major") {
+    switch (selectedIntervals.value) {
+      case "pentatonic":
+        return [0, 1, 2, 4, 5];
+      case "triads":
+        return [0, 2, 4];
+      default:
+        return [0, 1, 2, 3, 4, 5, 6];
+    }
+  } else {
+    // minor
+    switch (selectedIntervals.value) {
+      case "pentatonic":
+        return [0, 2, 3, 4, 6];
+      case "triads":
+        return [0, 2, 4];
+      default:
+        return [0, 1, 2, 3, 4, 5, 6];
+    }
+  }
 });
 
 const getNoteAtFret = (string: string, fret: number) => {
@@ -21,11 +52,15 @@ const getNoteAtFret = (string: string, fret: number) => {
   return keys[(stringIndex + fret) % 12];
 };
 
-const isNoteInKey = (note: string) => notesInKey.value.includes(note);
+const isNoteInKey = (note: string) => {
+  const noteIndex = notesInKey.value.indexOf(note);
+  return noteIndex !== -1 && activeIntervals.value.includes(noteIndex);
+};
 
 const getIntervalForNote = (note: string) => {
-  const index = notesInKey.value.indexOf(note);
-  return index > 0 ? intervals[index] : "";
+  const noteIndex = notesInKey.value.indexOf(note);
+  if (noteIndex === -1 || !activeIntervals.value.includes(noteIndex)) return "";
+  return scaleIntervals.value[noteIndex];
 };
 
 const getNoteClass = (note: string, fret: number) => {
@@ -33,7 +68,8 @@ const getNoteClass = (note: string, fret: number) => {
   if (fret === 0) classes += "border-r-4 border-r-gray-600 mr-2 ";
   if (note === selectedKey.value)
     classes += "bg-green-500 text-white font-bold";
-  else if (isNoteInKey(note)) classes += "bg-yellow-300 text-black font-bold";
+  else if (isNoteInKey(note) && getIntervalForNote(note))
+    classes += "bg-yellow-300 text-black font-bold";
   return classes;
 };
 
@@ -59,15 +95,40 @@ const fretboardClass = computed(() => {
 
 <template>
   <div class="flex flex-col items-center mt-8">
-    <div class="mb-4">
-      <label for="key-select" class="mr-2">Select Key:</label>
-      <select
-        id="key-select"
-        v-model="selectedKey"
-        class="px-2 py-1 border rounded"
-      >
-        <option v-for="key in keys" :key="key" :value="key">{{ key }}</option>
-      </select>
+    <div class="mb-4 flex space-x-4">
+      <div>
+        <label for="key-select" class="mr-2">Select Key:</label>
+        <select
+          id="key-select"
+          v-model="selectedKey"
+          class="px-2 py-1 border rounded"
+        >
+          <option v-for="key in keys" :key="key" :value="key">{{ key }}</option>
+        </select>
+      </div>
+      <div>
+        <label for="key-type-select" class="mr-2">Key Type:</label>
+        <select
+          id="key-type-select"
+          v-model="selectedKeyType"
+          class="px-2 py-1 border rounded"
+        >
+          <option value="major">Major</option>
+          <option value="minor">Minor</option>
+        </select>
+      </div>
+      <div>
+        <label for="intervals-select" class="mr-2">Intervals:</label>
+        <select
+          id="intervals-select"
+          v-model="selectedIntervals"
+          class="px-2 py-1 border rounded"
+        >
+          <option value="all">All</option>
+          <option value="pentatonic">Pentatonic</option>
+          <option value="triads">Triads</option>
+        </select>
+      </div>
     </div>
     <p v-if="isSmallScreen" class="text-sm text-gray-600 mb-2">
       Scroll horizontally to see all frets
