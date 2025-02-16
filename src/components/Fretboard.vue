@@ -65,13 +65,14 @@ const getIntervalForNote = (note: string) => {
 
 const getNoteClass = (note: string, fret: number) => {
   let classes = "border-r border-gray-300 dark:border-gray-600 ";
-  if (fret === 0)
-    classes += "border-r-4 border-r-gray-600 dark:border-r-gray-400 mr-2 ";
+  if (fret === 0) {
+    classes += "border-r-4 border-r-gray-600 dark:border-r-gray-400 ";
+  }
   if (note === selectedKey.value)
-    classes += "bg-green-500 text-white font-bold";
+    classes += "bg-green-500 text-white font-bold ";
   else if (isNoteInKey(note) && getIntervalForNote(note))
     classes +=
-      "bg-yellow-300 text-black font-bold dark:bg-blue-600 dark:text-white";
+      "bg-yellow-300 text-black font-bold dark:bg-blue-600 dark:text-white ";
   return classes;
 };
 
@@ -155,7 +156,8 @@ const fretboardClass = computed(() => {
             :key="fret"
             class="w-12 h-6 flex items-center justify-center text-xs border-r border-gray-300 dark:border-gray-600"
             :class="{
-              'border-r-4 border-r-gray-600 dark:border-r-gray-400': fret === 0,
+              'border-r-4 border-r-gray-600 dark:border-r-gray-400 mr-[-4px]':
+                fret === 0,
             }"
           >
             {{ fret }}
@@ -172,7 +174,10 @@ const fretboardClass = computed(() => {
             v-for="fret in frets"
             :key="fret"
             class="w-12 h-12 flex flex-col items-center justify-center text-sm relative"
-            :class="getNoteClass(getNoteAtFret(string, fret), fret)"
+            :class="[
+              getNoteClass(getNoteAtFret(string, fret), fret),
+              fret === 0 ? 'mr-[-4px]' : '', // Add negative margin to compensate for thicker border
+            ]"
           >
             <span>{{ getNoteAtFret(string, fret) }}</span>
             <span
@@ -198,7 +203,8 @@ const fretboardClass = computed(() => {
             :key="fret"
             class="w-12 h-6 flex items-center justify-center text-xs border-r border-gray-300 dark:border-gray-600"
             :class="{
-              'border-r-4 border-r-gray-600 dark:border-r-gray-400': fret === 0,
+              'border-r-4 border-r-gray-600 dark:border-r-gray-400 mr-[-4px]':
+                fret === 0,
             }"
           >
             {{ fret }}
